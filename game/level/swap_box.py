@@ -20,9 +20,10 @@ class SwapBox(Sprite, ToolPositionRect):
         self.rect = Rect((0, 0), self.size)  # 矩形
         self.set_rect_by_position()
 
-        # 记录被我切割到的wall
-        # 用于第二个切割
-        self.rect_in_self: list[Wall] = []  # 包含的矩形,这些矩形是共用对象
+        # 记录包含的矩形, 用于第二个切割, 这些矩形是共用对象, 不需要保存到下一帧
+        self.rect_in_self: list[Rect] = []
+        # 记录覆盖的图层的内容, 不需要保存到下一帧
+        self.frozen_surface = pygame.Surface(self.size)
 
     def move(self, d_xy: tuple[int, int]) -> None:
         self.rect.move_ip(d_xy)
@@ -40,10 +41,10 @@ class SwapBox(Sprite, ToolPositionRect):
         rects: dict[str, Rect] = {}  # 记录方位对应的矩形
         if wall_rect.right != clipped_rect.right:  # 相交矩形在wall左侧
             x = clipped_rect.right
-            left_or_right = 'right'
+            left_or_right = 'left'
         elif wall_rect.left != clipped_rect.left:  # 相交矩形在wall右侧
             x = clipped_rect.left
-            left_or_right = 'left'
+            left_or_right = 'right'
         if wall_rect.bottom != clipped_rect.bottom:  # 相交矩形在wall左上侧
             y = clipped_rect.bottom
             top_or_bottom = 'top'
@@ -81,14 +82,16 @@ class SwapBox(Sprite, ToolPositionRect):
         :return: 一个字典,将每一个Wall映射到它被割出的rect
         :rtype: dict[Wall, list[pygame.rect.Rect]]
         '''
+        self.rect_in_self = []  # 清空上一帧的遗留
         rect_map: WallMap = {}
         for wall in wall_group:
             wall_rect = wall.rect
             if not self.rect.colliderect(wall_rect):  # 没有相交
-                rect_map[wall] = [wall_rect]
+                rect_map[wall] = [wall_rect.copy()]  # 用拷贝防止Wall的rect被移动
             elif self.rect.contains(wall_rect):  # 包含在内的
-                rect_map[wall] = [wall_rect]
-                self.rect_in_self.append(wall_rect)
+                rect_copy = wall_rect.copy()  # 用拷贝防止Wall的rect被移动
+                rect_map[wall] = [rect_copy]
+                self.rect_in_self.append(rect_copy)
             else:  # 相交
                 clipped_rect = self.rect.clip(wall_rect)  # 相交的矩形
                 # 拿到切割后的数据
@@ -113,11 +116,15 @@ class SwapBox(Sprite, ToolPositionRect):
         :param other_box_rects: 第一次切割的SwapBox储存的包含在内的矩形
         :type other_box_rects: Sequence[Wall]
         '''
+        self.rect_in_self = []  # 清空上一帧的遗留
         for wall in wall_group:
             mapped_rect_list = rect_map[wall].copy()  # 这里要复制一份用来迭代
             for mapped_rect in mapped_rect_list:
                 if self.rect.contains(mapped_rect):  # 包含在内的
-                    self.rect_in_self.append(mapped_rect)
+                    if mapped_rect in other_box_rects:  # 已经在前一个SwapBox里,要复制
+                        self.rect_in_self.append(mapped_rect.copy())
+                    else:
+                        self.rect_in_self.append(mapped_rect)
                 elif self.rect.colliderect(mapped_rect):  # 相交
                     clipped_rect = self.rect.clip(mapped_rect)  # 相交的矩形
                     # 拿到切割后的数据
@@ -136,17 +143,9 @@ class SwapBox(Sprite, ToolPositionRect):
                         other_box_rects.remove(mapped_rect)
                         rect_map[wall].extend(rects.values())
 
-                # 不相交
-        #     if not self.rect.colliderect(wall_rect):  # 没有相交
-        #         rect_map[wall] = [wall_rect]
-        #     elif self.rect.contains(wall_rect):  # 包含在内的
-        #         rect_map[wall] = [wall_rect]
-        #         self.rect_in_self.append(wall_rect)
-        #     else:  # 相交
-        #         clipped_rect = self.rect.clip(wall_rect)  # 相交的矩形
-        #         # 添加矩形
-        #         self._cut_rect_by_rects(rect_map, wall, clipped_rect)
-        # return rect_map
+    def freeze_surface(self, surface: Surface) -> None:
+        '''把surface上的内容画到frozen_surface上'''
+        self.frozen_surface.blit(surface, (0, 0), self.rect)
 
 
 class SwapBoxSys:
@@ -170,13 +169,23 @@ class SwapBoxSys:
         '''取消控制SwapBox'''
         self.clicked_box = None
 
-    def swap_space(self, swap_box_a: SwapBox, swap_box_b: SwapBox) -> None:
+    @staticmethod
+    def swap_space(swap_box_a: SwapBox, swap_box_b: SwapBox) -> None:
         '''互换空间
 
         "与游戏同名的函数"
         将两个SwapBox中矩形的位置改变来实现互换
 
         '''
+        # a中移动到b
+        a_to_b = pygame.Vector2(swap_box_b.rect.topleft) - \
+            pygame.Vector2(swap_box_a.rect.topleft)
+        for rect_in_a in swap_box_a.rect_in_self:
+            rect_in_a.move_ip(a_to_b)
+        # b中移动到a
+        b_to_a = -a_to_b
+        for rect_in_b in swap_box_b.rect_in_self:
+            rect_in_b.move_ip(b_to_a)
 
     def cut_wall_rects(self, wall_group: Sequence[Wall]) -> WallMap:
         '''将Wall进行切割
@@ -202,10 +211,18 @@ class SwapBoxSys:
             self.clicked_box.move(d_xy)
             # 更新切割后的矩形
             update_cut_rects()
+        # r = self.red_box.rect.clip(self.blue_box.rect)
+        # print(r, bool(r))
 
-    def draw(self, surf: Surface) -> None:
-        self.swap_boxs.draw(surf)
+    def draw(self, surface: Surface) -> None:
+        self.swap_boxs.draw(surface)
 
-    def swap_view(self, surface) -> None:
+    def swap_view(self, surface: Surface) -> None:
         '''交换两框的可见内容'''
-        ...
+        swap_box: SwapBox
+        for swap_box in self.swap_boxs:
+            swap_box.freeze_surface(surface)
+        surface.blit(self.red_box.frozen_surface, self.blue_box.rect)
+        surface.blit(self.blue_box.frozen_surface, self.red_box.rect)
+        # surface.blit(surface, self.red_box.rect, )
+        # surface.blit(self.frozen_surface, (0, 0))

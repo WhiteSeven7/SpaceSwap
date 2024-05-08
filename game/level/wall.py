@@ -4,6 +4,7 @@ import random
 from random import randint
 import pygame
 from pygame.sprite import Sprite, Group
+from pygame.surface import Surface
 from ..game_type import *
 from ..setting import *
 
@@ -26,11 +27,11 @@ class Wall(Sprite):
 
         self.color = self.random_color()
 
-    def draw(self, surf: pygame.Surface):
+    def draw(self, surface: Surface):
         if DEBUG['show_rect']:
-            pygame.draw.rect(surf, self.color, self.rect)
+            pygame.draw.rect(surface, self.color, self.rect)
         else:
-            pygame.draw.rect(surf, (120, 120, 120), self.rect)
+            pygame.draw.rect(surface, (120, 120, 120), self.rect)
 
 
 WallMap = dict[Wall, list[pygame.Rect]]
@@ -66,14 +67,17 @@ class WallSys:
     def __iter__(self):
         return iter(self.walls)
 
-    def draw(self, surf: pygame.Surface):
+    def draw(self, surface: Surface)->None:
         wall: Wall
         for wall in self.walls:
-            wall.draw(surf)
+            wall.draw(surface)
+
+    def debug_draw(self, surface: Surface)->None:
         if DEBUG['show_rect']:
             for rect_set in self.cut_rects.values():
                 for rect in rect_set:
-                    pygame.draw.rect(surf, 'green', rect, 1)
+                    pygame.draw.rect(surface, 'green', rect, 1)
+        
 
 
 if __name__ == '__main__':

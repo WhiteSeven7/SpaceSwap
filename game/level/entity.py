@@ -66,7 +66,7 @@ class Entity(Sprite, ToolPositionRect):
         # 更新玩家位置
         self.set_position_by_rect()
 
-    def move_and_collide(self, delta_time: Number, collision_group: Sequence[Wall]) -> bool:
+    def move_and_collide(self, delta_time: Number, collision_group: Sequence[pygame.Rect]) -> bool:
         '''
         移动与碰撞
 
@@ -88,8 +88,8 @@ class Entity(Sprite, ToolPositionRect):
 
         return True
 
-    def draw(self, surf: pygame.Surface, debug_color):
-        surf.blit(self.image, self.rect)
+    def draw(self, surface: pygame.Surface, debug_color):
+        surface.blit(self.image, self.rect)
         if DEBUG['show_rect']:
             # 蓝色框
-            pygame.draw.rect(surf, debug_color, self.rect, 1)
+            pygame.draw.rect(surface, debug_color, self.rect, 1)

@@ -32,7 +32,7 @@ class Player(Entity):
         '''根据移动键状态行动'''
         self.velocity.x = (right_pressed - left_pressed) * self.speed
 
-    def run(self, keys: list[bool], delta_time: Number, collision_group):
+    def run(self, keys: list[bool], delta_time: Number, collision_group: Sequence[pygame.Rect]):
         # 控制
         if keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[pygame.K_UP]:  # 空格跳跃
             self.do_when_press_jump()
@@ -41,5 +41,5 @@ class Player(Entity):
         # 位移
         self.move_and_collide(delta_time, collision_group)
 
-    def draw(self, surf: pygame.Surface):
-        super().draw(surf, 'blue')
+    def draw(self, surface: pygame.Surface):
+        super().draw(surface, 'blue')
