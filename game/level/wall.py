@@ -73,7 +73,7 @@ class WallSys:
         if DEBUG['show_rect']:
             for rect_set in self.cut_rects.values():
                 for rect in rect_set:
-                    pygame.draw.rect(surf, 'purple', rect, 1)
+                    pygame.draw.rect(surf, 'green', rect, 1)
 
 
 if __name__ == '__main__':

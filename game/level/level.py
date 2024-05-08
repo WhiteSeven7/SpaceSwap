@@ -26,15 +26,22 @@ class Level(Scene):
         self.update_cut_rects()
 
     def run(self, surf: pygame.Surface, clock: pygame.time.Clock) -> None:
-        surf.fill('black')
 
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.swap_box_sys.do_when_mouse_down(event.pos)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self.swap_box_sys.do_when_mouse_up()
         keys = pygame.key.get_pressed()
         self.swap_box_sys.update(self.update_cut_rects)
         self.player.run(keys, 1 / FPS, [wall.rect for wall in self.wall_sys])
-        self.wall_sys.draw(surf)
-        self.swap_box_sys.draw(surf)
-        self.player.draw(surf)
-        # pygame.draw.rect(surf, (255, 0, 0), (0, 0, 100, 500), (100))
+
+        surf.fill('black')  # 画背景
+        self.swap_box_sys.swap_view(surf)  # 交换
+        self.wall_sys.draw(surf)  # 画墙
+        self.swap_box_sys.swap_view(surf)  # 交换
+        self.swap_box_sys.draw(surf)  # 画交换盒
+        self.player.draw(surf)  # 画玩家
 
     def update_cut_rects(self) -> None:
         '''更新切割后的矩形'''
