@@ -3,5 +3,5 @@ FPS = 60  # 帧率
 
 # 调试
 DEBUG = {
-    'show_rect': True,
+    'show_rect': False,
 }

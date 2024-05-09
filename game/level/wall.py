@@ -72,12 +72,9 @@ class WallSys:
         ...
 
     def debug_draw(self, surface: Surface) -> None:
-        # for rect_list in self.cut_rects.values():
-        #     for rect in rect_list:
-        #         pygame.draw.rect(surface, (150, 150, 150), rect)
         if DEBUG['show_rect']:
-            for rect_set in self.cut_rects.values():
-                for rect in rect_set:
+            for rect_list in self.cut_rects.values():
+                for rect in rect_list:
                     pygame.draw.rect(surface, 'green', rect, 1)
 
 

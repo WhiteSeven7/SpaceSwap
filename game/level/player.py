@@ -11,7 +11,7 @@ class Player(Entity):
 
     def __init__(self, position) -> None:
         super().__init__(position)
-        self.image = pygame.Surface((10, 10))
+        self.image = pygame.Surface((35, 35))
         self.image.fill('white')
         pygame.draw.rect(self.image, '#B5E61D', (5, 15, 20, 30))
         pygame.draw.line(self.image, '#99D9EA', (42, 15), (6, 40), 5)

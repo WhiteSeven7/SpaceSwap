@@ -13,7 +13,7 @@ class SwapBox(Sprite, ToolPositionRect):
         super().__init__(group)
         self.size = size  # 尺寸
         self.color = pygame.Color(color)  # 颜色
-        self.color.a = 60  # 设置不透明度
+        self.color.a = 100  # 设置不透明度
         self.image = Surface((self.size)).convert_alpha()
         self.image.fill(self.color)
         self.position = pygame.Vector2(position)  # 位置
@@ -137,13 +137,15 @@ class SwapBox(Sprite, ToolPositionRect):
                     rect_map[wall].extend(rects.values())
                     # 添加自己包含的rect
                     if mapped_rect in other_box_rects:  # 已经在前一个SwapBox里了,要复制
-                        self.rect_in_self.append(rects[key].copy())
+                        rect_copy = rects[key].copy()
+                        self.rect_in_self.append(rect_copy)
+                        rect_map[wall].append(rect_copy)
                     else:
                         self.rect_in_self.append(rects[key])
                     if mapped_rect in other_box_rects:
                         # 修改前一个SwapBox的包含矩形
                         other_box_rects.remove(mapped_rect)
-                        rect_map[wall].extend(rects.values())
+                        other_box_rects.extend(rects.values())
 
     def freeze_surface(self, surface: Surface) -> None:
         '''把surface上的内容画到frozen_surface上'''
