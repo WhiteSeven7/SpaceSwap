@@ -11,10 +11,12 @@ class Player(Entity):
 
     def __init__(self, position) -> None:
         super().__init__(position)
-        self.image = pygame.Surface((35, 35))
+        self.image = pygame.Surface((40, 40))
         self.image.fill('white')
-        pygame.draw.rect(self.image, '#B5E61D', (5, 15, 20, 30))
-        pygame.draw.line(self.image, '#99D9EA', (42, 15), (6, 40), 5)
+        pygame.draw.rect(self.image, '#B5E61D', (5, 5, 10, 10))
+        pygame.draw.rect(self.image, '#B5E61D', (25, 5, 10, 10))
+        pygame.draw.line(self.image, '#99D9EA', (8, 22), (20, 32), 5)
+        pygame.draw.line(self.image, '#99D9EA', (32, 22), (20, 32), 5)
         self.rect = self.image.get_rect(center=self.position)
 
     def do_when_press_jump(self) -> bool:

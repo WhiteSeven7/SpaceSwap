@@ -170,9 +170,9 @@ class SwapBoxSys:
     def __init__(self) -> None:
         self.swap_boxs = Group()
         self.red_box = SwapBox(
-            (Wall.SIZE * 2, Wall.SIZE * 2), (237, 28, 36), (100, 100), self.swap_boxs)
+            (Wall.SIZE * 2, Wall.SIZE * 2), (237, 28, 36), (200, 200), self.swap_boxs)
         self.blue_box = SwapBox(
-            (Wall.SIZE * 2, Wall.SIZE * 2), (0, 162, 232), (200, 200), self.swap_boxs)
+            (Wall.SIZE * 2, Wall.SIZE * 2), (0, 162, 232), (450, 450), self.swap_boxs)
         self.clicked_box: SwapBox | None = None  # 正在挪动的 SwapBox
 
         self.clipped_surface = Surface(self.red_box.size)   # 记录SwapBox相交的图像

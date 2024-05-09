@@ -32,7 +32,7 @@ class Wall(Sprite):
         if DEBUG['show_rect']:
             pygame.draw.rect(surface, self.color, self.rect)
         else:
-            pygame.draw.rect(surface, (120, 120, 120), self.rect)
+            pygame.draw.rect(surface, (200, 200, 200), self.rect)
 
 
 class WallSys:
