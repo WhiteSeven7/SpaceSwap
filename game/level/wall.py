@@ -10,7 +10,7 @@ from ..setting import *
 
 
 class Wall(Sprite):
-    SIZE = 66
+    SIZE = 50
 
     @staticmethod
     def random_color() -> tuple[int, int, int]:
@@ -28,13 +28,11 @@ class Wall(Sprite):
         self.color = self.random_color()
 
     def draw(self, surface: Surface):
+        # pygame.draw.rect(surface, (120, 120, 120), self.rect)
         if DEBUG['show_rect']:
             pygame.draw.rect(surface, self.color, self.rect)
         else:
             pygame.draw.rect(surface, (120, 120, 120), self.rect)
-
-
-WallMap = dict[Wall, list[pygame.Rect]]
 
 
 class WallSys:
@@ -62,22 +60,25 @@ class WallSys:
 
     def __init__(self, wall_csv_path: str) -> None:
         self.walls: Group = self.get_walls_from_csv(wall_csv_path)
-        self.cut_rects: WallMap = {}
+        self.cut_rects: dict[Wall, list[pygame.Rect]] = {}
 
     def __iter__(self):
         return iter(self.walls)
 
-    def draw(self, surface: Surface)->None:
+    def draw(self, surface: Surface) -> None:
         wall: Wall
         for wall in self.walls:
             wall.draw(surface)
+        ...
 
-    def debug_draw(self, surface: Surface)->None:
+    def debug_draw(self, surface: Surface) -> None:
+        # for rect_list in self.cut_rects.values():
+        #     for rect in rect_list:
+        #         pygame.draw.rect(surface, (150, 150, 150), rect)
         if DEBUG['show_rect']:
             for rect_set in self.cut_rects.values():
                 for rect in rect_set:
                     pygame.draw.rect(surface, 'green', rect, 1)
-        
 
 
 if __name__ == '__main__':

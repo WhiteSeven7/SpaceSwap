@@ -35,14 +35,14 @@ class Level(Scene):
         keys = pygame.key.get_pressed()
         self.swap_box_sys.update(self.update_cut_rects)
         self.player.run(
-            keys, 1 / FPS, [rect for rect_list in self.wall_sys.cut_rects for rect in rect_list])
+            keys, 1 / FPS, [rect for rect_list in self.wall_sys.cut_rects.values() for rect in rect_list])
 
         surface.fill('black')  # 画背景
-        # self.swap_box_sys.swap_view(surface)  # 交换
+        self.swap_box_sys.record_surface(surface)  # 记录画面
         self.wall_sys.draw(surface)  # 画墙
         self.swap_box_sys.swap_view(surface)  # 交换
 
-        self.wall_sys.bebug_draw(surface)  # 交换后再画轮廓线
+        self.wall_sys.debug_draw(surface)  # 交换后再画轮廓线
         self.swap_box_sys.draw(surface)  # 画交换盒
         self.player.draw(surface)  # 画玩家
 
