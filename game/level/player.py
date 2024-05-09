@@ -6,7 +6,7 @@ from .entity import Entity
 
 
 class Player(Entity):
-    jump = -600
+    jump = -500
     speed = 300
 
     def __init__(self, position) -> None:
@@ -29,12 +29,14 @@ class Player(Entity):
         if self.is_on_floor:
             self.velocity.y = self.jump
             self.is_on_floor = False
+            return True
+        return False
 
     def do_when_move_key_state(self, left_pressed: bool, right_pressed: bool) -> None:
         '''根据移动键状态行动'''
         self.velocity.x = (right_pressed - left_pressed) * self.speed
 
-    def run(self, keys: list[bool], delta_time: Number, collision_group: Sequence[pygame.Rect]):
+    def run(self, keys: Sequence[bool], delta_time: Number, collision_group: Sequence[pygame.Rect]):
         # 控制
         if keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[pygame.K_UP]:  # 空格跳跃
             self.do_when_press_jump()

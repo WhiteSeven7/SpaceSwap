@@ -1,3 +1,8 @@
 __pycache__/
 tset.*
 note.*
+.installer/
+.vscode/
+*.spec
+build/
+dist/

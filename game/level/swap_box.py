@@ -3,20 +3,22 @@ import pygame
 from pygame.surface import Surface
 from pygame.rect import Rect
 from pygame.sprite import Sprite, Group
+from pygame.math import Vector2
+from pygame.color import Color
 from ..game_type import *
 from .entity import ToolPositionRect
 from .wall import Wall
 
 
 class SwapBox(Sprite, ToolPositionRect):
-    def __init__(self, size: PointT, color: pygame.Color, position: pygame.Vector2 | PointT, group: Sequence[Group] = ()) -> None:
+    def __init__(self, size: PointT, color: Color | tuple[int, int, int], position: Vector2 | PointT, group: Sequence[Group] = ()) -> None:
         super().__init__(group)
         self.size = size  # 尺寸
-        self.color = pygame.Color(color)  # 颜色
+        self.color = Color(color)  # 颜色
         self.color.a = 100  # 设置不透明度
         self.image = Surface((self.size)).convert_alpha()
         self.image.fill(self.color)
-        self.position = pygame.Vector2(position)  # 位置
+        self.position = Vector2(position)  # 位置
         self.rect = Rect((0, 0), self.size)  # 矩形
         self.set_rect_by_position()
 
@@ -55,7 +57,7 @@ class SwapBox(Sprite, ToolPositionRect):
             top_or_bottom = 'bottom'
         if x is None and y is None:
             raise ValueError("x is None and y is None")
-        if y is None:
+        elif y is None:
             rects = {
                 '_left': Rect(wall_rect.left, wall_rect.top, x - wall_rect.left, wall_rect.height),
                 '_right': Rect(x, wall_rect.top, wall_rect.right - x, wall_rect.height),
@@ -157,9 +159,9 @@ class SwapBox(Sprite, ToolPositionRect):
             self.collision_rect_relative = None
         else:
             self.collision_rect_relative = clipped_rect.move(
-                -pygame.Vector2(self.rect.topleft))
+                -Vector2(self.rect.topleft))
 
-    def draw_in_clipped(self, surface: Surface, clipped_rect: Rect | PointT, rect_of_other: Rect) -> None:
+    def draw_in_clipped(self, surface: Surface, clipped_rect: Rect | PointT, rect_of_other: Rect | None) -> None:
         '''把自己将换到重叠区域的矩形绘制到指定位置'''
         self.frozen_surface.set_alpha(50)
         surface.blit(self.frozen_surface, clipped_rect, rect_of_other)
@@ -199,8 +201,8 @@ class SwapBoxSys:
 
         '''
         # a中移动到b
-        a_to_b = pygame.Vector2(swap_box_b.rect.topleft) - \
-            pygame.Vector2(swap_box_a.rect.topleft)
+        a_to_b = Vector2(swap_box_b.rect.topleft) - \
+            Vector2(swap_box_a.rect.topleft)
         for rect_in_a in swap_box_a.rect_in_self:
             rect_in_a.move_ip(a_to_b)
         # b中移动到a

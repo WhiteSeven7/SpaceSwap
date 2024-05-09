@@ -18,7 +18,7 @@ class Wall(Sprite):
         random.shuffle(color)
         return tuple(color)
 
-    def __init__(self, num: int, pos_g: PointT, center_pos: pygame.Vector2, *, groups: Group | Sequence = ()) -> None:
+    def __init__(self, num: int, pos_g: PointT, center_pos: pygame.Vector2, *, groups) -> None:
         super().__init__(groups)
         self.num = num
         self.x_g, self.y_g = pos_g
@@ -36,8 +36,8 @@ class Wall(Sprite):
 
 
 class WallSys:
-    x = Wall.SIZE * 2
-    y = Wall.SIZE * 2
+    x = 0
+    y = 0
 
     def get_center_by_pos_g(self, xy_or_x: PointT | int | float, y: int | float = 0):
         '''给定格子的x,y获取格子的中心位置'''

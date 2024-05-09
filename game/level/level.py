@@ -17,7 +17,7 @@ class Level(Scene):
 
     def __init__(self) -> None:
         self.wall_sys = WallSys('res_ss/level/wall_maps/1.csv')
-        self.player = Player(self.wall_sys.get_center_by_pos_g((1, 3)))
+        self.player = Player(self.wall_sys.get_center_by_pos_g((3, 5)))
         self.swap_box_sys = SwapBoxSys()
 
         self.pause = False  # 暂停
@@ -32,11 +32,12 @@ class Level(Scene):
                 self.swap_box_sys.do_when_mouse_down(event.pos)
             elif event.type == pygame.MOUSEBUTTONUP:
                 self.swap_box_sys.do_when_mouse_up()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+                self.player.__init__(self.wall_sys.get_center_by_pos_g((3, 5)))
         keys = pygame.key.get_pressed()
         self.swap_box_sys.update(self.update_cut_rects)
         self.player.run(
             keys, 1 / FPS, [rect for rect_list in self.wall_sys.cut_rects.values() for rect in rect_list])
-
         surface.fill('black')  # 画背景
         self.swap_box_sys.record_surface(surface)  # 记录画面
         self.wall_sys.draw(surface)  # 画墙
