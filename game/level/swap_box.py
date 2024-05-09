@@ -6,6 +6,7 @@ from pygame.sprite import Sprite, Group
 from pygame.math import Vector2
 from pygame.color import Color
 from ..game_type import *
+from ..setting import *
 from .entity import ToolPositionRect
 from .wall import Wall
 
@@ -30,6 +31,7 @@ class SwapBox(Sprite, ToolPositionRect):
         self.collision_rect_relative: Rect | None = None
 
     def move(self, d_xy: tuple[int, int]) -> None:
+        '''移动'''
         self.rect.move_ip(d_xy)
 
     def _cut_rect_by_rects(self, wall_rect: Rect, clipped_rect: Rect) -> tuple[dict[str, Rect], str]:
@@ -161,6 +163,19 @@ class SwapBox(Sprite, ToolPositionRect):
             self.collision_rect_relative = clipped_rect.move(
                 -Vector2(self.rect.topleft))
 
+    def update(self):
+        '''如果出界, 就贴边'''
+        # x方向
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > WINDOWS_SIZE[0]:
+            self.rect.right = WINDOWS_SIZE[0]
+        # y方向
+        if self.rect.top < 0:
+            self.rect.top = 0
+        elif self.rect.bottom > WINDOWS_SIZE[1]:
+            self.rect.bottom = WINDOWS_SIZE[1]
+
     def draw_in_clipped(self, surface: Surface, clipped_rect: Rect | PointT, rect_of_other: Rect | None) -> None:
         '''把自己将换到重叠区域的矩形绘制到指定位置'''
         self.frozen_surface.set_alpha(50)
@@ -238,13 +253,18 @@ class SwapBoxSys:
         return rect_cut
 
     def update(self, update_cut_rects):
+        '''
+        1. 如果有SwapBox位置变了, 切割矩形
+        2. SwapBox.update()
+        '''
         d_xy = pygame.mouse.get_rel()
         if self.clicked_box and pygame.mouse.get_pressed()[0]:
             self.clicked_box.move(d_xy)
             # 更新切割后的矩形
             update_cut_rects()
-        # r = self.red_box.rect.clip(self.blue_box.rect)
-        # print(r, bool(r))
+        swap_box: SwapBox
+        for swap_box in self.swap_boxs:
+            swap_box.update()
 
     def record_surface(self, surface: Surface) -> None:
         '''在其他对象绘制前记录好位置, 用于接下来交换'''

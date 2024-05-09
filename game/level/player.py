@@ -1,5 +1,6 @@
 '''玩家'''
 import pygame
+
 from ..game_type import *
 from ..setting import *
 from .entity import Entity
@@ -9,8 +10,9 @@ class Player(Entity):
     jump = -500
     speed = 300
 
-    def __init__(self, position) -> None:
-        super().__init__(position)
+    def __init__(self, home_position) -> None:
+        self.home_position = home_position
+        super().__init__(self.home_position)
         self.image = pygame.Surface((40, 40))
         self.image.fill('white')
         pygame.draw.rect(self.image, '#B5E61D', (5, 5, 10, 10))
@@ -36,7 +38,12 @@ class Player(Entity):
         '''根据移动键状态行动'''
         self.velocity.x = (right_pressed - left_pressed) * self.speed
 
-    def run(self, keys: Sequence[bool], delta_time: Number, collision_group: Sequence[pygame.Rect]):
+    def init(self):
+        self.position = pygame.Vector2(self.home_position)
+        self.set_rect_by_position()
+        self.velocity = pygame.Vector2(0, 0)
+
+    def update(self, keys: Sequence[bool], delta_time: Number, collision_group: Sequence[pygame.Rect]):
         # 控制
         if keys[pygame.K_SPACE] or keys[pygame.K_w] or keys[pygame.K_UP]:  # 空格跳跃
             self.do_when_press_jump()
@@ -44,6 +51,9 @@ class Player(Entity):
             keys[pygame.K_LEFT] or keys[pygame.K_a], keys[pygame.K_RIGHT] or keys[pygame.K_d])
         # 位移
         self.move_and_collide(delta_time, collision_group)
+        # 在脱离屏幕时回到初始点
+        if self.rect.top > WINDOWS_SIZE[1] or self.rect.right < 0 or self.rect.left > WINDOWS_SIZE[0]:
+            self.init()
 
     def draw(self, surface: pygame.Surface):
         super().draw(surface, 'blue')

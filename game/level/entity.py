@@ -33,36 +33,45 @@ class Entity(Sprite, ToolPositionRect):
 
     def move_and_collide_x(self, delta_time: Number, collision_group: Sequence[Wall]) -> None:
         '''x轴方向的移动位置和碰撞体'''
+        # 移动
         self.position.x += self.velocity.x * delta_time
         self.set_rect_by_position()
         # 检测碰撞
-        for wall in collision_group:
-            if self.rect.colliderect(wall):
-                # 根据速度重设rect
-                if self.velocity.x > 0:
-                    self.rect.right = wall.left
-                    self.velocity.x = 0
-                elif self.velocity.x < 0:
-                    self.rect.left = wall.right
-                    self.velocity.x = 0
+        if self.velocity.x > 0:  # 速度朝右
+            # 找所有碰到的矩形的最左边
+            if right_list := [
+                wall.left for wall in collision_group if self.rect.colliderect(wall)]:
+                self.rect.right = min(right_list)
+                self.velocity.x = 0
+        elif self.velocity.x < 0:  # 速度朝左
+            # 找所有碰到的矩形的最右边
+            if left_list := [
+                wall.right for wall in collision_group if self.rect.colliderect(wall)]:
+                self.rect.left = max(left_list)
+                self.velocity.x = 0
         # 更新玩家位置
         self.set_position_by_rect()
 
     def move_and_collide_y(self, delta_time: Number, collision_group: Sequence[Wall]) -> None:
         '''y轴方向的移动位置和碰撞体'''
+        # 移动
         self.position.y += self.velocity.y * delta_time
         self.set_rect_by_position()
         # 检测碰撞
-        for wall in collision_group:
-            if self.rect.colliderect(wall):
-                if self.velocity.y > 0:
-                    self.rect.bottom = wall.top
-                    self.velocity.y = 0
-                    # 朝下碰撞,设为触地
-                    self.is_on_floor = True
-                elif self.velocity.y < 0:
-                    self.rect.top = wall.bottom
-                    self.velocity.y = 0
+        if self.velocity.y > 0:  # 速度朝下
+            # 找所有碰到的矩形的最上边
+            if top_list := [
+                wall.top for wall in collision_group if self.rect.colliderect(wall)]:
+                self.rect.bottom = min(top_list)
+                self.velocity.y = 0
+                # 朝下碰撞,设为触地
+                self.is_on_floor = True
+        elif self.velocity.y < 0:  # 速度朝上
+            # 找所有碰到的矩形的最下边
+            if bottom_list := [
+                wall.bottom for wall in collision_group if self.rect.colliderect(wall)]:
+                self.rect.top = max(bottom_list)
+                self.velocity.y = 0
         # 更新玩家位置
         self.set_position_by_rect()
 

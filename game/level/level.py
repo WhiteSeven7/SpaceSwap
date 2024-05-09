@@ -33,10 +33,10 @@ class Level(Scene):
             elif event.type == pygame.MOUSEBUTTONUP:
                 self.swap_box_sys.do_when_mouse_up()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-                self.player.__init__(self.wall_sys.get_center_by_pos_g((3, 5)))
+                self.player.init()
         keys = pygame.key.get_pressed()
         self.swap_box_sys.update(self.update_cut_rects)
-        self.player.run(
+        self.player.update(
             keys, 1 / FPS, [rect for rect_list in self.wall_sys.cut_rects.values() for rect in rect_list])
         surface.fill('black')  # 画背景
         self.swap_box_sys.record_surface(surface)  # 记录画面
